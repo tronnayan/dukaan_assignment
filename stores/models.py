@@ -26,8 +26,9 @@ class Products(models.Model):
     description = models.TextField()
     mrp = models.IntegerField(default=0)
     sale_price = models.IntegerField(default=0)
-    product_image = models.ImageField(null = True)
+    # product_image = models.ImageField(null = True)
     category = models.ForeignKey(Categories,on_delete=models.CASCADE)
+
 
     def __str__(self):
         return self.name
