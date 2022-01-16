@@ -25,3 +25,22 @@ class SellerSerializer(serializers.ModelSerializer):
         tok = create_access_token(data = {"sub":account_obj.phone})
         return tok
 
+class CustomerSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField()
+    class Meta:
+        model = Customer 
+        fields = ('id','phone','otp','address','token')
+    
+    def create(self,validated_data):
+        OTP = random.randint(1000,9999)
+        customer = Customer.objects.create(
+            phone = validated_data["phone"],
+            address = validated_data["address"],
+            otp = OTP
+        )
+        customer.save()
+        return (customer)
+    
+    def get_token(self,account_obj):
+        tok = create_access_token(data = {"sub":account_obj.phone})
+        return tok

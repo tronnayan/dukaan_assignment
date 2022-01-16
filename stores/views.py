@@ -1,15 +1,12 @@
-from unicodedata import category
-from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework.response import Response
-from stores.serializers import CategorySerializer, ProductSerializer, StoreSerializer
-from .models import Account, Categories, Store
+from accounts.models import Customer
+from stores.serializers import CartSerializer, CategorySerializer, OrderSerializer, ProductSerializer, StoreDetailSerializer, StoreSerializer
+from .models import Account, Categories, Order, Products, Store
 from accounts.jwt import verify_token
-from accounts.serializers import SellerSerializer
-from rest_framework import generics
 
 # Create your views here.
 
@@ -33,6 +30,13 @@ class StoreView(APIView):
                 return Response(serializer.data)
             return Response(serializer.errors)
         return Response({"User Not Found": "Seller Not Registered"})
+
+class StoreDetailView(APIView):
+    def get(self, request, store_name):
+        store = ' '.join(store_name.split("-"))
+        store_obj = Store.objects.get(name = store)
+        serializer = StoreDetailSerializer(store_obj, many = False)
+        return Response(serializer.data)        
 
 class ProductView(APIView):
     def post(self, request):
@@ -58,18 +62,36 @@ class ProductView(APIView):
                     return Response(cat_serializer.errors)
 
             category = Categories.objects.get(Q(store = store) & Q(name = category_name))
-            data = {
-                "name" : request.data.get("name"),
-                "description": request.data.get("description"),
-                "mrp" : request.data.get("mrp"),
-                "sale_price": request.data.get("sale_price"),
-                "category": category.id
-            }
-            serializer = ProductSerializer(data = data)
+            request.data["category"] = category.id
+            serializer = ProductSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
         return Response({"User Not Found": "Seller Not Registered"})
 
 
+class OrderView(APIView):
+    def post(self, request,store_name):
+        store = ' '.join(store_name.split("-"))
+        store_obj = Store.objects.get(name = store)
+        token = request.headers["Authorization"]
+        customer_num = verify_token(token)
+        customer = Customer.objects.get(phone = customer_num)
+        order = Order.objects.create(buyer = customer, store = store_obj)
+        data = request.data
+
+        for res in data:
+            res["value"] = (Products.objects.get(id = res["products"]).sale_price) * res["quantity"]
+            order.total_value += res["value"]
+            res["order"] = order.id
+
+        order.save()
+        serializer = CartSerializer(data = data, many = True)
+        if serializer.is_valid():
+            serializer.save()
+
+        oserializer = OrderSerializer(order, many = False)
+        return Response(oserializer.data)
+        
+        
 

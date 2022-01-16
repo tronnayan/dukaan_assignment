@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u)!_&miqzr4)*v&1z(_$58zlah+sg-)l0fb()mx-=sm9!!eqjt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
-    'stores'
+    'stores',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_ACCESS_KEY_ID = 'AKIAQNEIKU4YOXQ52VVS'
+AWS_SECRET_ACCESS_KEY = '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'
+
+AWS_STORAGE_BUCKET_NAME = 'overflow1'
+AWS_QUERYSTRING_AUTH = True
+
+AWS_S3_FILE_OVERWRITE = False

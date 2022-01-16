@@ -7,10 +7,13 @@ from rest_framework.response import Response
 from stores.serializers import StoreSerializer
 from .models import Account
 from accounts.jwt import verify_token
-from accounts.serializers import SellerSerializer
+from accounts.serializers import SellerSerializer, CustomerSerializer
 from rest_framework import generics
 
 # Create your views here.
 class SellerView(generics.CreateAPIView):
     serializer_class  = SellerSerializer
+
+class CustomerCreateView(generics.CreateAPIView):
+    serializer_class  = CustomerSerializer
 

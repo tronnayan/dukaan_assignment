@@ -10,6 +10,7 @@ class Account(models.Model):
  
 class Customer(models.Model):
     phone = models.CharField(max_length=13, unique=True)
+    otp = models.IntegerField(default = 0)
     address = models.TextField()
 
     def __str__(self):
